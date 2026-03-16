@@ -28,6 +28,24 @@
   color: #61dafb;
 }
 
+.service-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.14) !important;
+}
+
+.service-card .card-img-top {
+  height: 220px;
+  object-fit: cover;
+}
+
+.auth-card {
+  border-radius: 1rem;
+}
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
