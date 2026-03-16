@@ -31,7 +31,7 @@ function SignUp() {
     }));
   };
 
-  const submitHandler = (event) => {
+  const submitHandler = async (event) => {
     event.preventDefault();
     setError('');
     setSuccess('');
@@ -65,7 +65,7 @@ function SignUp() {
       return;
     }
 
-    const response = dispatch(register(formData));
+    const response = await dispatch(register(formData));
 
     if (!response.success) {
       setError(response.message);

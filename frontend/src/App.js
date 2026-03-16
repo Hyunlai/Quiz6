@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import './App.css';
 import Header from './Components/Header';
@@ -14,17 +14,15 @@ import SellerDashboard from './Screens/SellerDashboard';
 import UserProfile from './Screens/UserProfile';
 import CheckoutScreen from './Screens/CheckoutScreen';
 import ChatbotScreen from './Screens/ChatbotScreen';
-import { ensureSeedAdmin, getCurrentUser } from './authService';
-import { ensureSeedServices } from './marketService';
-
-ensureSeedAdmin();
-ensureSeedServices();
+import { getAccessToken, getCurrentUser } from './authService';
 
 function ProtectedRoute({ children, allowAdminOnly = false, allowSellerOnly = false }) {
+  const location = useLocation();
   const currentUser = getCurrentUser();
+  const accessToken = getAccessToken();
 
-  if (!currentUser) {
-    return <Navigate to="/signin" replace />;
+  if (!currentUser || !accessToken) {
+    return <Navigate to="/signin" replace state={{ from: location.pathname }} />;
   }
 
   if (allowAdminOnly && currentUser.role !== 'Admin') {
@@ -90,7 +88,14 @@ function App() {
                   </ProtectedRoute>
                 )}
               />
-              <Route path="/chatbot" element={<ChatbotScreen />} />
+              <Route
+                path="/chatbot"
+                element={(
+                  <ProtectedRoute>
+                    <ChatbotScreen />
+                  </ProtectedRoute>
+                )}
+              />
             </Routes>
           </Container>
         </main>

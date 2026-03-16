@@ -1,30 +1,30 @@
 import React, { useState } from 'react';
 import { Alert, Button, Card, Col, Form, Row } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { ensureSeedAdmin } from '../authService';
+import { getCurrentUser } from '../authService';
 import { login } from '../actions/userActions';
 
 function SignIn() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const submitHandler = (event) => {
+  const submitHandler = async (event) => {
     event.preventDefault();
     setError('');
     setSuccess('');
-    ensureSeedAdmin();
 
     if (!email.trim() || !password.trim()) {
       setError('Please enter your email and password.');
       return;
     }
 
-    const response = dispatch(login(email, password));
+    const response = await dispatch(login(email, password));
 
     if (!response.success) {
       setError(response.message);
@@ -34,7 +34,14 @@ function SignIn() {
     window.dispatchEvent(new Event('auth-changed'));
     setSuccess('Login successful. Redirecting...');
 
-    if (response.user.role === 'Admin') {
+    const redirectPath = location.state?.from;
+    if (redirectPath && redirectPath !== '/signin' && redirectPath !== '/signup') {
+      navigate(redirectPath, { replace: true });
+      return;
+    }
+
+    const user = getCurrentUser();
+    if (user?.role === 'Admin') {
       navigate('/users');
       return;
     }
@@ -88,7 +95,7 @@ function SignIn() {
             </Form>
 
             <p className="mt-4 mb-0 text-muted">
-              No account yet? <Link to="/signup">Create one here</Link>.
+              No account yet? <Link to="/signup" state={{ from: location.state?.from }}>Create one here</Link>.
             </p>
           </Card.Body>
         </Card>

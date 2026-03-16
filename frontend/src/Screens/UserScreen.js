@@ -39,7 +39,7 @@ function UserScreen() {
   }, [dispatch]);
 
   const sortedApplications = useMemo(() => {
-    return [...applications].sort((a, b) => b.id.localeCompare(a.id));
+    return [...applications].sort((a, b) => b.id - a.id);
   }, [applications]);
 
   if (!currentUser) {
@@ -64,8 +64,8 @@ function UserScreen() {
     setEditingUserId('');
   };
 
-  const saveEdit = (userId) => {
-    const response = dispatch(editUserByAdmin(userId, editForm));
+  const saveEdit = async (userId) => {
+    const response = await dispatch(editUserByAdmin(userId, editForm));
 
     if (!response.success) {
       setMessage(response.message);
@@ -78,8 +78,8 @@ function UserScreen() {
     window.dispatchEvent(new Event('auth-changed'));
   };
 
-  const deleteHandler = (userId) => {
-    dispatch(removeUserByAdmin(userId));
+  const deleteHandler = async (userId) => {
+    await dispatch(removeUserByAdmin(userId));
     dispatch(listUsers());
     dispatch(listApplications());
     setMessage('User deleted.');
@@ -98,8 +98,8 @@ function UserScreen() {
     setShowDeclineModal(true);
   };
 
-  const confirmApprove = () => {
-    const response = dispatch(approveApplication(selectedApplication.id, merchantId));
+  const confirmApprove = async () => {
+    const response = await dispatch(approveApplication(selectedApplication.id, merchantId));
 
     if (!response.success) {
       setMessage(response.message);
@@ -114,8 +114,8 @@ function UserScreen() {
     window.dispatchEvent(new Event('auth-changed'));
   };
 
-  const confirmDecline = () => {
-    const response = dispatch(declineApplication(selectedApplication.id, declineReason));
+  const confirmDecline = async () => {
+    const response = await dispatch(declineApplication(selectedApplication.id, declineReason));
 
     if (!response.success) {
       setMessage(response.message);
@@ -234,11 +234,10 @@ function UserScreen() {
               <Table responsive hover className="align-middle mb-0">
                 <thead>
                   <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
+                    <th>Username</th>
                     <th>Email</th>
                     <th>Status</th>
-                    <th>Merchant ID</th>
+                    <th>Decline Reason</th>
                     <th className="text-end">Actions</th>
                   </tr>
                 </thead>
@@ -252,15 +251,14 @@ function UserScreen() {
                   ) : (
                     sortedApplications.map((application) => (
                       <tr key={application.id}>
-                        <td>{application.first_name}</td>
-                        <td>{application.last_name}</td>
-                        <td>{application.email}</td>
+                        <td>{application.username}</td>
+                        <td>{application.user_email}</td>
                         <td>
-                          <Badge bg={application.status === 'Approved' ? 'success' : application.status === 'Rejected' ? 'danger' : 'warning'}>
+                          <Badge bg={application.status === 'Approved' ? 'success' : application.status === 'Declined' ? 'danger' : 'warning'}>
                             {application.status}
                           </Badge>
                         </td>
-                        <td>{application.merchant_id || '-'}</td>
+                        <td>{application.decline_reason || '-'}</td>
                         <td className="text-end">
                           <Button
                             size="sm"

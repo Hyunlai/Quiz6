@@ -1,6 +1,8 @@
 const USERS_KEY = 'q6_users';
 const CURRENT_USER_KEY = 'q6_current_user';
 const SELLER_APPLICATIONS_KEY = 'q6_seller_applications';
+const ACCESS_TOKEN_KEY = 'q6_access_token';
+const REFRESH_TOKEN_KEY = 'q6_refresh_token';
 
 function readJson(key, fallbackValue) {
   const rawValue = localStorage.getItem(key);
@@ -18,6 +20,22 @@ function readJson(key, fallbackValue) {
 
 function writeJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+}
+
+export function storeSession(user, access, refresh) {
+  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+  localStorage.setItem(ACCESS_TOKEN_KEY, access);
+  localStorage.setItem(REFRESH_TOKEN_KEY, refresh);
+}
+
+export function clearSession() {
+  localStorage.removeItem(CURRENT_USER_KEY);
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+}
+
+export function getAccessToken() {
+  return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
 
 function normalizeEmail(email) {
@@ -129,7 +147,7 @@ export function loginUser(email, password) {
 }
 
 export function logoutUser() {
-  localStorage.removeItem(CURRENT_USER_KEY);
+  clearSession();
 }
 
 export function getSellerApplications() {
@@ -234,7 +252,11 @@ export function rejectSellerApplication(applicationId, declineReason) {
 }
 
 export function getUserById(userId) {
-  return getUsers().find((user) => user.id === userId) || null;
+  const currentUser = getCurrentUser();
+  if (currentUser && String(currentUser.id) === String(userId)) {
+    return currentUser;
+  }
+  return null;
 }
 
 export function updateUser(userId, updates) {

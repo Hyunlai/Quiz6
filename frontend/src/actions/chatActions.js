@@ -1,37 +1,33 @@
 import { CHAT_ASK_SUCCESS, CHAT_CLEAR } from '../constants/chatConstants';
+import api from '../api';
 
-function generateReply(prompt) {
-  const normalized = prompt.toLowerCase();
+export const askChatbot = (prompt) => async (dispatch) => {
+  try {
+    const { data } = await api.post('/api/v1/chat/ask/', { prompt });
+    dispatch({
+      type: CHAT_ASK_SUCCESS,
+      payload: {
+        question: prompt,
+        answer: data.reply || '',
+        created_at: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    const statusCode = error?.response?.status;
+    const fallbackAnswer =
+      statusCode === 401 || statusCode === 403
+        ? 'Please sign in to use the chatbot.'
+        : 'I can help with carpentry and woodwork topics like services, pricing, materials, installation, and repairs.';
 
-  if (normalized.includes('price') || normalized.includes('cost')) {
-    return 'Carpentry pricing depends on wood type, design complexity, and labor. In this platform, check each service card for current pricing and duration.';
+    dispatch({
+      type: CHAT_ASK_SUCCESS,
+      payload: {
+        question: prompt,
+        answer: fallbackAnswer,
+        created_at: new Date().toISOString(),
+      },
+    });
   }
-
-  if (normalized.includes('wood') || normalized.includes('material')) {
-    return 'Common woodwork materials include plywood, MDF, mahogany, and treated lumber. Ask your seller about durability and maintenance for your project.';
-  }
-
-  if (normalized.includes('repair')) {
-    return 'For repairs, provide clear photos and dimensions so the seller can estimate tools, replacement parts, and timeline accurately.';
-  }
-
-  if (normalized.includes('service') || normalized.includes('book')) {
-    return 'Open a service, review the duration and price, then use the checkout flow to place your order with the seller.';
-  }
-
-  return 'I can help with carpentry and woodwork topics like services, pricing, materials, installation, and repairs.';
-}
-
-export const askChatbot = (prompt) => (dispatch) => {
-  const answer = generateReply(prompt);
-  dispatch({
-    type: CHAT_ASK_SUCCESS,
-    payload: {
-      question: prompt,
-      answer,
-      created_at: new Date().toISOString(),
-    },
-  });
 };
 
 export const clearChatbot = () => (dispatch) => {

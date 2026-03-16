@@ -26,8 +26,8 @@ function ApplySeller() {
     }
 
     const latestApplication = applications
-      .filter((application) => application.user_id === user.id)
-      .sort((a, b) => b.id.localeCompare(a.id))[0];
+      .filter((application) => String(application.user) === String(user.id))
+      .sort((a, b) => b.id - a.id)[0];
 
     if (user.role === 'Seller') {
       setStatus('approved');
@@ -42,11 +42,11 @@ function ApplySeller() {
     return <Navigate to="/signin" replace />;
   }
 
-  const submitHandler = () => {
+  const submitHandler = async () => {
     setError('');
     setSuccess('');
 
-    const response = dispatch(submitSellerApplication(currentUser.id));
+    const response = await dispatch(submitSellerApplication());
 
     if (!response.success) {
       setError(response.message);
@@ -82,7 +82,7 @@ function ApplySeller() {
               <Alert variant="warning" className="mb-0">
                 Your seller application is pending admin approval.
               </Alert>
-            ) : status === 'rejected' ? (
+            ) : status === 'declined' ? (
               <Alert variant="danger" className="mb-0">
                 Your previous seller application was declined. You may submit again.
               </Alert>

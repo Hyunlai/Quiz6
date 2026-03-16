@@ -6,7 +6,8 @@ import { listServices } from '../actions/serviceActions';
 import { getCurrentUser } from '../authService';
 
 function renderStars(rating) {
-  const filledStars = Math.round(rating);
+  const numericRating = Number(rating || 0);
+  const filledStars = Math.round(numericRating);
 
   return Array.from({ length: 5 }, (_, index) => (
     <i
@@ -68,7 +69,7 @@ function DetailScreen() {
                   <h1 className="h2 mb-2">{service.service_name}</h1>
                 </div>
                 <Badge bg="info" text="dark" pill>
-                  {service.rating.toFixed(1)}
+                  {Number(service.rating || 0).toFixed(1)}
                 </Badge>
               </div>
 
@@ -80,7 +81,7 @@ function DetailScreen() {
                 <Col sm={6}>
                   <div className="p-3 rounded bg-body-tertiary border h-100">
                     <p className="text-muted mb-1">Price</p>
-                    <h2 className="h5 mb-0">{service.price}</h2>
+                    <h2 className="h5 mb-0">{service.price_display || `PHP ${Number(service.price || 0).toLocaleString()}`}</h2>
                   </div>
                 </Col>
                 <Col sm={6}>

@@ -6,10 +6,17 @@ node_modules/
 # Python cache and env artifacts
 __pycache__/
 *.py[cod]
+.env
+.env.*
 
 # Frontend build/deps
 frontend/node_modules/
 frontend/build/
+
+# Backend local runtime files
+backend/db.sqlite3
+backend/media/
+backend/.env
 
 # Remove assignment instruction file from repo
 frontend/ReadmeforfutherInstructions.md

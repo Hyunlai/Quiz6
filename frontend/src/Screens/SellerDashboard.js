@@ -28,7 +28,7 @@ function SellerDashboard() {
     setCurrentUser(user);
 
     if (user) {
-      dispatch(listMySellerServices(user.id));
+      dispatch(listMySellerServices());
     }
   }, [dispatch]);
 
@@ -41,11 +41,11 @@ function SellerDashboard() {
   }
 
   const refreshSellerServices = () => {
-    dispatch(listMySellerServices(currentUser.id));
+    dispatch(listMySellerServices());
     dispatch(listServices());
   };
 
-  const submitHandler = (event) => {
+  const submitHandler = async (event) => {
     event.preventDefault();
     setError('');
     setMessage('');
@@ -66,7 +66,7 @@ function SellerDashboard() {
     }
 
     if (editingServiceId) {
-      const response = dispatch(editService(editingServiceId, formData));
+      const response = await dispatch(editService(editingServiceId, formData));
 
       if (!response.success) {
         setError(response.message);
@@ -80,7 +80,7 @@ function SellerDashboard() {
       return;
     }
 
-    const response = dispatch(addService(formData));
+    const response = await dispatch(addService(formData));
 
     if (!response.success) {
       setError(response.message);
@@ -103,10 +103,10 @@ function SellerDashboard() {
     });
   };
 
-  const deleteHandler = (serviceId) => {
+  const deleteHandler = async (serviceId) => {
     setError('');
     setMessage('');
-    const response = dispatch(deleteService(serviceId));
+    const response = await dispatch(deleteService(serviceId));
 
     if (!response.success) {
       setError(response.message);

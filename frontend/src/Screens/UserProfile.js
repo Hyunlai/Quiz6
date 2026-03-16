@@ -3,7 +3,8 @@ import { Card, Col, Row, Table } from 'react-bootstrap';
 import { Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { listMyOrders } from '../actions/orderActions';
-import { getCurrentUser, getUserById } from '../authService';
+import api from '../api';
+import { getCurrentUser } from '../authService';
 
 function UserProfile() {
   const dispatch = useDispatch();
@@ -16,8 +17,10 @@ function UserProfile() {
     setCurrentUser(session);
 
     if (session) {
-      setFullUser(getUserById(session.id));
-      dispatch(listMyOrders(session.id));
+      dispatch(listMyOrders());
+      api.get('/api/v1/users/profile/')
+        .then(({ data }) => setFullUser(data))
+        .catch(() => setFullUser(session));
     }
   }, [dispatch]);
 
